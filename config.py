@@ -3,9 +3,9 @@ class Config(object):
     lr = 1e-3
     weight_decay = 1e-4
     use_gpu = True
-    epoch = 20
-    batch_size = 10
-    plot_every = 20  # 每20个batch 可视化一次
+    epoch = 10
+    batch_size = 100
+    plot_every = 200  # 每200个batch 可视化一次
     # use_env = True  # 是否使用visodm
     env = 'sentiment'  # visdom env
     debug_file = '/tmp/debugp'

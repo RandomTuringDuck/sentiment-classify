@@ -38,41 +38,49 @@ def load_bin_vec(fname, vocab):
 def load_train():
     text_field = data.Field(lower=True)
     label_field = data.Field(sequential=False)
-    tv_datafields = [("phrase_id", None), ("sen_id", None), ("text", text_field), ("label", label_field)]
+    id_field = data.Field(sequential=False, use_vocab=False)
+    train_datafields = [("phrase_id", id_field), ("sen_id", None), ("text", text_field), ("label", label_field)]
     train = data.TabularDataset(path='data/train.tsv',
                                                   format='tsv',
                                                   skip_header=True,
-                                                  fields=tv_datafields)
+                                                  fields=train_datafields)
 
-    text_field.build_vocab(train)
+    test_datafields = [("phrase_id", id_field), ("sen_id", None), ("text", text_field)]
+    test = data.TabularDataset(path='data/test.tsv',
+                               format='tsv',
+                               skip_header=True,
+                               fields=test_datafields)
+
+    id_field.build_vocab(train)
+    text_field.build_vocab(train, test)
     label_field.build_vocab(train)
-    train_vocab = text_field.vocab
-    print(train_vocab.stoi)
-    print(train_vocab.stoi['the'])
+    all_vocab = text_field.vocab
 
     train_iter = data.BucketIterator(
         dataset=train, batch_size=opt.batch_size,
-        sort_key=lambda x: len(x.text),shuffle=True)
+        sort_key=lambda x: len(x.text),shuffle=True,repeat=False)
 
-    return train_iter, train_vocab
+    return train_iter, all_vocab
+
 
 def load_test():
-    id_field = data.Field(use_vocab=False)
+    id_field = data.Field(sequential=False, use_vocab=False)
     text_field = data.Field(lower=True)
     tv_datafields = [("phrase_id", id_field), ("sen_id", None), ("text", text_field)]
     test = data.TabularDataset(path='data/test.tsv',
                                 format='tsv',
                                 skip_header=True,
                                 fields=tv_datafields)
-    print(test[9].text[:])
+
     text_field.build_vocab(test)
     id_field.build_vocab(test)
 
-    test_iter = data.BucketIterator(
+    test_iter = data.Iterator(
         dataset=test, batch_size=opt.batch_size,
-        sort_key=lambda x: len(x.text))
+        sort=False, train=False, sort_within_batch=False, repeat=False)
 
     return test_iter
+
 
 def get_word_vec(train_vocab):
     word_to_idx = train_vocab.stoi
@@ -84,11 +92,18 @@ def get_word_vec(train_vocab):
     return pretrained_embeddings
 
 
-
-trn, train_vocab = load_train()
-    # ts = load_test()
-# for batch in trn:
-#     print(len(batch.text))
-pe = get_word_vec(train_vocab)
-print(pe[0],pe[2])
-print(pe.shape)
+# #
+if __name__ == "__main__":
+    trn, train_vocab = load_train()
+    print(trn.__len__())
+    ts = load_test()
+    import tqdm
+    count = 0
+    for batch in ts:
+        count += 1
+        print(count)
+#      # batch.label.data.sub_(1)
+#     print(batch.phrase_id,len(batch.text.data),batch.text.data)
+# # pe = get_word_vec(train_vocab)
+# # print(pe[0],pe[2])
+# # print(pe.shape)
