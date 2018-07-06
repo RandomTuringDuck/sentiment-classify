@@ -40,7 +40,7 @@ def train_epoch(model, trn, loss_function, optimizer, vis, epoch):
         #trn是torchtext的一个batch迭代器
         input, label = batch.text, batch.label
         # 这里是将label的改为从零开始，等着在思考为何要这么做
-        # label.data.sub_(1)
+        label.data.sub_(1)
         # truth_res += list(label.data)
         model.batch_size = input.size(-1)
         model.hidden = model.init_hidden()

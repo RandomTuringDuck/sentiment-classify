@@ -96,14 +96,18 @@ def get_word_vec(train_vocab):
 if __name__ == "__main__":
     trn, train_vocab = load_train()
     print(trn.__len__())
-    ts = load_test()
     import tqdm
     count = 0
-    for batch in ts:
-        count += 1
-        print(count)
-#      # batch.label.data.sub_(1)
-#     print(batch.phrase_id,len(batch.text.data),batch.text.data)
+    for batch in trn:
+        count+=1
+        label = batch.label
+#         # label.data.sub_(1)
+#         print(label)
+# #      # batch.label.data.sub_(1)
+        print(batch.text.data.shape)
+        if count == 1561:
+            print(batch.text.data)
+
 # # pe = get_word_vec(train_vocab)
 # # print(pe[0],pe[2])
 # # print(pe.shape)
